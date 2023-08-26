@@ -27,7 +27,7 @@ import cookie from "cookiejs";
 import { useNavigate } from "react-router-dom";
 import { MenuItem } from "react-pro-sidebar";
 
-const Coach = () => {
+const Author = () => {
   const getRowId = (row) => row._id;
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -35,18 +35,18 @@ const Coach = () => {
 
   const navigate = useNavigate();
 
-  const [coach, setCoach] = useState([]);
-  const [activeCoaches, setActiveCoaches] = useState([]);
-  const [existingCoach, setExistingCoach] = useState({
-    existingCoachName: "",
-    existingCoachId: "",
+  const [author, setAuthor] = useState([]);
+  const [activeAuthores, setActiveAuthores] = useState([]);
+  const [existingAuthor, setExistingAuthor] = useState({
+    existingAuthorName: "",
+    existingAuthorId: "",
   });
 
   const [competetion, setComptetion] = useState({});
   const [selectedValue, setSelectedValue] = useState("");
-  const [selectedCoach, setSelectedCoach] = useState("");
-  const [newMajorCoachId, setNewMajorCoachId] = useState("");
-  const [coacheDropDown, setCoachDropDown] = useState([]);
+  const [selectedAuthor, setSelectedAuthor] = useState("");
+  const [newMajorAuthorId, setNewMajorAuthorId] = useState("");
+  const [authoreDropDown, setAuthorDropDown] = useState([]);
 
   const [isLoading, setIsLoading] = useState(false);
   const [openForSwitchMajor, setOpenForSwitchMajor] = useState(false);
@@ -55,34 +55,24 @@ const Coach = () => {
   const [deleteId, setDeleteId] = useState("");
   const [openDelete, setOpenDelete] = useState(false);
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-  const handleClickOpenForSwitchMajor = (existingCoachData) => {
-    navigate("tomajor", { state: existingCoachData });
-    organizeComptetionsList();
-  };
 
   const handleClose = () => {
     setOpen(false);
   };
 
-  const handleCloseForSwitchMajor = () => {
-    setOpenForSwitchMajor(false);
-  };
 
   const handleCloseDelete = () => {
     setOpenDelete(false);
   };
 
 
-  const fetchAllCoachs = async () => {
+  const fetchAllAuthors = async () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.get("/coach/all");
+      const response = await axios.get("/author");
 
-      setCoach(response.data.data.coaches);
+      setAuthor(response.data.data.author);
 
       setIsLoading(false);
     } catch (error) {
@@ -106,7 +96,7 @@ const Coach = () => {
       });
 
       const reqOptions = {
-        url: "/coach",
+        url: "/author",
         method: "DELETE",
         headers: headersList,
         data: bodyContent,
@@ -123,7 +113,7 @@ const Coach = () => {
         toast.error(response?.data?.message);
       }
 
-      fetchAllCoachs();
+      fetchAllAuthors();
     } catch (error) {
       if (
         error.response?.data?.status === "FAIL" ||
@@ -131,19 +121,19 @@ const Coach = () => {
       ) {
         toast.error(error?.response?.data?.message);
       }
-      fetchAllCoachs();
+      fetchAllAuthors();
     }
   };
 
-  const deleteOneCoach = async (id) => {
+  const deleteOneAuthor = async (id) => {
     setIsLoading(true);
 
     try {
-      const response = await axios.delete(`/coach/${id}`);
+      const response = await axios.delete(`/author/${id}`);
       if (response?.data?.status === "SUCCESS") {
         toast.success(response?.data?.message);
       }
-      fetchAllCoachs();
+      fetchAllAuthors();
     } catch (error) {
       if (
         error.response?.data?.status === "FAIL" ||
@@ -151,32 +141,15 @@ const Coach = () => {
       ) {
         toast.error(error?.response?.data?.message);
       }
-      fetchAllCoachs();
+      fetchAllAuthors();
     }
   };
 
   useEffect(() => {
-    fetchAllCoachs();
+    fetchAllAuthors();
   }, []);
 
-  /**
-   * organize comptition list with the current active comption
-   */
-  function organizeComptetionsList() {
-    const newCoachesList = [];
-    if (coach.length !== 0) {
-      for (let i = 0; i < coach.length; i++) {
-        if (coach[i]?.coach_name !== existingCoach.existingCoachName) {
-          newCoachesList.push({
-            name: coach[i].coach_name,
-            label: coach[i].coach_name,
-            id: coach[i]?._id,
-          });
-        }
-      }
-      setCoachDropDown(newCoachesList);
-    }
-  }
+
 
   const changeStatus = async (status, id) => {
     setIsLoading(true);
@@ -185,13 +158,13 @@ const Coach = () => {
     };
     try {
       const response = await axios.patch(
-        `/coach/status/${id}`,
+        `/author/status/${id}`,
         data
       );
       if (response?.data?.status === "SUCCESS") {
         toast.success(response?.data?.message);
       }
-      fetchAllCoachs();
+      fetchAllAuthors();
       setIsLoading(false);
     } catch (error) {
       if (
@@ -200,7 +173,7 @@ const Coach = () => {
       ) {
         toast.error(error?.response?.data?.message);
       }
-      fetchAllCoachs();
+      fetchAllAuthors();
       setIsLoading(false);
     }
   };
@@ -218,7 +191,7 @@ const Coach = () => {
       if (response?.data?.status === "SUCCESS") {
         toast.success(response?.data?.message);
       }
-      fetchAllCoachs();
+      fetchAllAuthors();
       setIsLoading(false);
     } catch (error) {
       if (
@@ -227,7 +200,7 @@ const Coach = () => {
       ) {
         toast.error(error?.response?.data?.message);
       }
-      fetchAllCoachs();
+      fetchAllAuthors();
       setIsLoading(false);
     }
   };
@@ -239,8 +212,8 @@ const Coach = () => {
 
   const columns = [
     {
-      field: "coach_name",
-      headerName: "Coach name",
+      field: "author_name",
+      headerName: "Author name",
       headerAlign: "left",
       align: "left",
       width: 100,
@@ -337,8 +310,8 @@ const Coach = () => {
                   className="tofree-button bbtn"
                   onClick={() => {
                     handleClickOpenForSwitchMajor({
-                      existingCoachName: params.row?.coach_name,
-                      existingCoachId: params.row?._id,
+                      existingAuthorName: params.row?.author_name,
+                      existingAuthorId: params.row?._id,
                     });
                   }}
                 >
@@ -370,9 +343,9 @@ const Coach = () => {
         </Box>
       </div>
       <Box m="20px">
-        {/* <Header title="coach" /> */}
+        {/* <Header title="author" /> */}
         <div className="title-split">
-          <Header title="Coach" />
+          <Header title="Author" />
           <div>
             <IconButton
               onClick={() => {
@@ -463,7 +436,7 @@ const Coach = () => {
             <DialogTitle id="alert-dialog-title">{"Notice"}</DialogTitle>
             <DialogContent>
               <DialogContentText id="alert-dialog-description">
-                Are you sure you want to delete the Coach
+                Are you sure you want to delete the Author
               </DialogContentText>
             </DialogContent>
             <DialogActions>
@@ -479,7 +452,7 @@ const Coach = () => {
                 variant="contained"
                 onClick={() => {
                   handleCloseDelete();
-                  deleteOneCoach(deleteId);
+                  deleteOneAuthor(deleteId);
                 }}
                 autoFocus
               >
@@ -504,15 +477,15 @@ const Coach = () => {
                 select
                 label="Select"
                 variant="filled"
-                value={selectedCoach}
+                value={selectedAuthor}
                 sx={{ gridColumn: "span 4" }}
                 onChange={(e) => {
-                  setSelectedCoach(e.target.value);
+                  setSelectedAuthor(e.target.value);
                 }}
               >
-                {/* <Select value={selectedCoach} onChange={changeSelectedCoach} fullWidth> */}
+                {/* <Select value={selectedAuthor} onChange={changeSelectedAuthor} fullWidth> */}
 
-                {coacheDropDown.map((option) => (
+                {authoreDropDown.map((option) => (
                   <MenuItem key={option.id} value={option.name}>
                     {option.name}
                   </MenuItem>
@@ -543,7 +516,7 @@ const Coach = () => {
           </Dialog>
 
           <DataGrid
-            rows={coach}
+            rows={author}
             columns={columns}
             components={{ Toolbar: GridToolbar }}
             getRowId={getRowId}
@@ -554,4 +527,4 @@ const Coach = () => {
   );
 };
 
-export default Coach;
+export default Author;

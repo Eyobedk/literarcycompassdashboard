@@ -63,10 +63,10 @@ import AllPlayers from "./game-pages/players-season/player-season";
 import AppVersion from "./pages/app-version/app-version";
 import AppVersionAdd from "./pages/app-version-add/app-version-add";
 import AppVersionEdit from "./pages/app-version-edit/app-version-edit";
-import Coach from "./game-pages/coach";
-import EditCoach from "./game-pages/coach/update_info";
-import ToMajor from "./game-pages/coach/to_major";
-import AddCoach from "./game-pages/coach/create";
+import Author from "./game-pages/author";
+import EditAuthor from "./game-pages/author/update_info";
+import ToMajor from "./game-pages/author/to_major";
+import AddAuthor from "./game-pages/author/create";
 import FetchPlayer from "./pages/fetchplayer/fetchplayer";
 import AgentView from "./game-pages/agent-view/agent-view";
 import MonthlyLeaderboard from "./game-pages/leaderboard/monthly";
@@ -120,10 +120,10 @@ function App() {
           <Route path="agents" element={<Agent />} />
           <Route path="agents/view/:id" element={<AgentView />} />
           <Route path="agents/edit/:id" element={<EditAgent />} />
-          <Route path="author" element={<Coach />} />
-          <Route path="author/edit/:id" element={<EditCoach />} />
+          <Route path="author" element={<Author />} />
+          <Route path="author/edit/:id" element={<EditAuthor />} />
           <Route path="author/tomajor" element={<ToMajor />} />
-          <Route path="author/add" element={<AddCoach />} />
+          <Route path="author/add" element={<AddAuthor />} />
           <Route path="leaderboard" element={<LeaderBoard />} />
           <Route path="leaderboard/yearly" element={<YearlyLeaderboard />} />
           <Route path="leaderboard/monthly" element={<MonthlyLeaderboard />} />
