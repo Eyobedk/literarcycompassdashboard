@@ -62,11 +62,13 @@ const Admin = () => {
     setIsLoading(true);
 
     try {
+      console.log("wey")
       const response = await axios.get("/admin");
-      console.log(response.data.data.admins)
+      console.log(response)
       setListOfAdmin(response.data.data.admins);
       setIsLoading(false);
     } catch (error) {
+      console.log(error)
       setIsLoading(false);
     }
   };

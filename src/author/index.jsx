@@ -1,10 +1,10 @@
 import { Box, useTheme, IconButton } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import { ColorModeContext, tokens } from "../../theme";
+import { ColorModeContext, tokens } from "../theme";
 import EditIcon from "@mui/icons-material/Edit";
 import { TextField } from "@mui/material";
 
-import Header from "../../components/Header";
+import Header from "../components/Header";
 import { toast } from "react-toastify";
 
 import { useContext, useEffect, useState } from "react";

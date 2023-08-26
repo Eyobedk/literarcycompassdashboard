@@ -1,27 +1,26 @@
 import { Box, Button, TextField } from "@mui/material";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import Header from "../../../components/Header";
+import Header from "../../components/Header";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { toast } from 'react-toastify'
 import { useEffect, useState } from "react";
-import { AppContext } from "../../../context/AppContext";
+import { AppContext } from "../../context/AppContext";
 import { useContext } from "react";
 import Avatar from '@mui/material/Avatar';
 
 
 
-const EditCoach = () => {
+const AddCoach = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const { presetName, cloudName } = useContext(AppContext);
 
+    const [selectedImage, setSelectedImage] = useState("");
 
     const [isLoading, setIsLoading] = useState(false);
 
     const [imageSuccess, setImageSuccess] = useState("");
-
-    const [coachImage, setCoachImage] = useState("");
 
     const [coachName, setCoachName] = useState("");
     const [coachId, setCoachId] = useState("");
@@ -37,30 +36,13 @@ const EditCoach = () => {
      * fetch game week
      */
 
-    const fetchCoach = async () => {
-        setIsLoading(true);
-        const response = await axios.get(`/coach/${id}`);
-
-        if (response?.data?.status === "SUCCESS") {
-            setCoachName(response.data.data.coach.coach_name);
-            setCoachImage(response.data.data.coach.image_secure_url);
-            setCoachId(response.data.data.coach._id)
-        }
-
-        setIsLoading(false);
-    };
-
-
-    useEffect(() => {
-        fetchCoach();
-    }, []);
 
 
     const handleSubmit = async () => {
         try {
             setIsLoading(true);
-            const response = await axios.patch(
-                `/coach/${coachId}`,
+            const response = await axios.post(
+                `/coach`,
                 {
                     coach_name: coachName
                 }
@@ -90,13 +72,12 @@ const EditCoach = () => {
 
     function handleImageChange(e) {
         const file = e.target.files[0];
-        setImageSuccess("");
-
         // Check that the file size is less than or equal to 400 KB
         if (file && file.size <= 400 * 1024) {
             const reader = new FileReader();
 
             reader.onload = function (event) {
+                setIsLoading(true)
                 const img = new Image();
                 img.src = event.target.result;
 
@@ -111,7 +92,9 @@ const EditCoach = () => {
                     })
                         .then((response) => response.json())
                         .then((data) => {
-                            handleImageUpdate({
+                            setSelectedImage(data.secure_url);
+
+                            setUserImage({
                                 image_secure_url: data.secure_url,
                                 image_public_id: data.public_id,
                             })
@@ -123,6 +106,7 @@ const EditCoach = () => {
                         });
                 };
                 handleUpload();
+                setIsLoading(false);
             };
 
             reader.readAsDataURL(file);
@@ -134,13 +118,14 @@ const EditCoach = () => {
             }
     }
 
-    const handleImageUpdate = async (data) => {
+    const CreateCoachData = async () => {
         try {
             setIsLoading(true);
-            const response = await axios.patch(
-                `/coach/image/${coachId}`,
+            const response = await axios.post(
+                `/coach`,
                 {
-                    ...data
+                    ...userImage,
+                    coach_name: coachName
                 }
             );
 
@@ -170,7 +155,7 @@ const EditCoach = () => {
 
     return (
         <Box m="20px">
-            <Header title="EDIT" subtitle="Coach" />
+            <Header title="Add" subtitle="Coach" />
 
             {
                 isLoading && <p className="form-loading">Loading...</p>
@@ -186,7 +171,7 @@ const EditCoach = () => {
             >
                 <Avatar
                     alt={coachName}
-                    src={coachImage}
+                    src={selectedImage}
                     sx={{ width: 76, height: 76 }}
                 />
                 <div>
@@ -222,13 +207,13 @@ const EditCoach = () => {
                     type="submit"
                     color="secondary"
                     variant="contained"
-                    onClick={handleSubmit}
+                    onClick={()=> CreateCoachData()}
                 >
-                    EDIT
+                    Add
                 </Button>
             </Box>
         </Box>
     );
 };
 
-export default EditCoach;
+export default AddCoach;
