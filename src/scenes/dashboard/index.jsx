@@ -89,21 +89,6 @@ const Dashboard = () => {
       {/* HEADER */}
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Header title="DASHBOARD" subtitle="Welcome to literacy campass dashboard" />
-{/* 
-        <Box>
-          <Button onClick={()=> window.print()}
-            sx={{
-              backgroundColor: colors.blueAccent[700],
-              color: colors.grey[100],
-              fontSize: "14px",
-              fontWeight: "bold",
-              padding: "10px 20px",
-            }}
-          >
-            <DownloadOutlinedIcon sx={{ mr: "10px" }} />
-            Download Reports
-          </Button>
-        </Box> */}
       </Box>
 
       {/* GRID & CHARTS */}
@@ -205,7 +190,7 @@ const Dashboard = () => {
                     data:stats.weekly?.readableWeeklyAmount,
                   },
                 ]}
-                width={400}
+                width={500}
                 height={300}
               />
             </Box>
@@ -246,7 +231,7 @@ const Dashboard = () => {
                     data:stats.monthly?.readableMonthlyAmount,
                   },
                 ]}
-                width={400}
+                width={500}
                 height={300}
               />
             </Box>
@@ -274,7 +259,7 @@ const Dashboard = () => {
               >
                 Users Anlytics Yearly
               </Typography>
-              {console.log(stats.yearly?.readableYearyAmount)}
+
               <BarChart
                 xAxis={[
                   {
@@ -288,7 +273,7 @@ const Dashboard = () => {
                     data:stats.yearly?.readableYearyAmount,
                   },
                 ]}
-                width={400}
+                width={500}
                 height={300}
               />
             </Box>
@@ -296,13 +281,7 @@ const Dashboard = () => {
                 </Box>
           
           </Box>
-          {/* <Box height="250px" m="-20px 0 0 0">
-            <LineChart isDashboard={true} />
-          </Box> */}
-  
-        {/* </Box>
-      </Box>
-    </Box> */}
+          
     </Box>
   );
 };
