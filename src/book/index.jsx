@@ -1,60 +1,69 @@
 import { Box, useTheme, IconButton } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import { ColorModeContext, tokens } from "../../theme";
-import DeleteIcon from "@mui/icons-material/Delete";
+import { ColorModeContext, tokens } from "../theme";
 import EditIcon from "@mui/icons-material/Edit";
 
-import Header from "../../components/Header";
+import Header from "../components/Header";
 import { toast } from "react-toastify";
 
 import { useContext, useEffect, useState } from "react";
 
 import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
-
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
-
-import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
+import Button from "@mui/material/Button";
 
-const Genre = () => {
-  const [deleteId, setDeleteId] = useState("");
-  const [openDelete, setOpenDelete] = useState(false);
+import axios from "axios";
+import cookie from "cookiejs";
 
-  const handleClickOpenDelete = (id) => {
-    setOpenDelete(true);
-    setDeleteId(id);
-  };
+import { useNavigate } from "react-router-dom";
 
-  const handleCloseDelete = () => {
-    setOpenDelete(false);
-  };
-
+const Book = () => {
+  const getRowId = (row) => row._id;
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const colorMode = useContext(ColorModeContext);
 
   const navigate = useNavigate();
 
-  const [genre, setGenre] = useState([]);
-  //   console.log(genre);
+  const [book, setBook] = useState([]);
+
 
   const [isLoading, setIsLoading] = useState(false);
+  const [open, setOpen] = useState(false);
 
-  const fetchAllGenre = async () => {
+  const [deleteId, setDeleteId] = useState("");
+  const [openDelete, setOpenDelete] = useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+
+
+  const handleCloseDelete = () => {
+    setOpenDelete(false);
+  };
+
+
+  const fetchAllBooks = async () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.get("/genre");
+      const response = await axios.get("/book");
 
-      setGenre(response.data.data.genre);
+      setBook(response.data.data.book);
 
       setIsLoading(false);
     } catch (error) {
@@ -62,31 +71,80 @@ const Genre = () => {
     }
   };
 
-  useEffect(() => {
-    fetchAllGenre();
-  }, []);
 
-  const deleteOneGenre = async (id) => {
+  const deleteAll = async () => {
     setIsLoading(true);
-
+    const tokenString = cookie.get("admin");
     try {
-      const response = await axios.delete(`/genre/${id}`);
+      let headersList = {
+        Accept: "*/*",
+        Bookization: `Bearer ${tokenString}`,
+        "Content-Type": "application/json",
+      };
+
+      let bodyContent = JSON.stringify({
+        deleteKey: process.env.REACT_APP_DELETE_KEY,
+      });
+
+      const reqOptions = {
+        url: "/book",
+        method: "DELETE",
+        headers: headersList,
+        data: bodyContent,
+      };
+
+      const response = await axios.request(reqOptions);
       if (response?.data?.status === "SUCCESS") {
         toast.success(response?.data?.message);
       }
-      fetchAllGenre();
+      if (
+        response?.data?.status === "ERROR" ||
+        response?.data?.status === "FAIL"
+      ) {
+        toast.error(response?.data?.message);
+      }
+
+      fetchAllBooks();
     } catch (error) {
-      // console.log("error", error);
       if (
         error.response?.data?.status === "FAIL" ||
         error.response?.data?.status === "ERROR"
       ) {
         toast.error(error?.response?.data?.message);
       }
-      fetchAllGenre();
+      fetchAllBooks();
     }
   };
 
+  const deleteOneBook = async (id) => {
+    setIsLoading(true);
+
+    try {
+      const response = await axios.delete(`/book/${id}`);
+      if (response?.data?.status === "SUCCESS") {
+        toast.success(response?.data?.message);
+      }
+      fetchAllBooks();
+    } catch (error) {
+      if (
+        error.response?.data?.status === "FAIL" ||
+        error.response?.data?.status === "ERROR"
+      ) {
+        toast.error(error?.response?.data?.message);
+      }
+      fetchAllBooks();
+    }
+  };
+
+  useEffect(() => {
+    fetchAllBooks();
+  }, []);
+
+
+  const handleClickOpenDelete = (id) => {
+    setOpenDelete(true);
+    setDeleteId(id);
+  };
 
   const columns = [
     {
@@ -94,19 +152,42 @@ const Genre = () => {
       headerName: "title",
       headerAlign: "left",
       align: "left",
-      width: 200,
+      width: 100,
+      valueGetter: (params) => params.row.author[0].full_name + '...'
     },
     {
-      field: "createdAt",
-      headerName: "createdAt",
+      field: "about",
+      headerName: "about",
       headerAlign: "left",
       align: "left",
-      width: 300,
+      width: 100,
+    },
+    {
+      field: "no_of_page",
+      headerName: "no of page",
+      headerAlign: "left",
+      align: "left",
+      width: 100,
+    },
+    {
+      field: "language",
+      headerName: "language",
+      headerAlign: "left",
+      align: "left",
+      width: 100,
+    },
+    {
+      field: "genre",
+      headerName: "genre",
+      headerAlign: "left",
+      align: "left",
+      width: 100,
+      valueGetter: (params) => params.row.genre[0].title + '...'
     },
     {
       field: "Update Status",
       headerName: "Access Level",
-      width: 100,
+      width: 140,
 
       renderCell: (params) => {
         return (
@@ -117,6 +198,7 @@ const Genre = () => {
               }}
               className="admin-icons"
             />
+
             <DeleteIcon
               className="admin-icons"
               onClick={() => {
@@ -147,8 +229,9 @@ const Genre = () => {
         </Box>
       </div>
       <Box m="20px">
+        {/* <Header title="book" /> */}
         <div className="title-split">
-          <Header title="Genre" />
+          <Header title="Book" />
           <div>
             <IconButton
               onClick={() => {
@@ -157,9 +240,46 @@ const Genre = () => {
             >
               <AddIcon />
             </IconButton>
+
+            {/* <IconButton onClick={handleClickOpen}>
+              <DeleteIcon />
+            </IconButton> */}
+
+            <Dialog
+              open={open}
+              onClose={handleClose}
+              aria-labelledby="alert-dialog-title"
+              aria-describedby="alert-dialog-description"
+            >
+              <DialogTitle id="alert-dialog-title">{"Notice"}</DialogTitle>
+              <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                  Are you sure you want to delete all books
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button
+                  onClick={() => {
+                    handleClose();
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  color="secondary"
+                  variant="contained"
+                  onClick={() => {
+                    handleClose();
+                    deleteAll();
+                  }}
+                  autoFocus
+                >
+                  Delete All
+                </Button>
+              </DialogActions>
+            </Dialog>
           </div>
         </div>
-
         <Box
           m="40px 0 0 0"
           height="75vh"
@@ -202,7 +322,7 @@ const Genre = () => {
             <DialogTitle id="alert-dialog-title">{"Notice"}</DialogTitle>
             <DialogContent>
               <DialogContentText id="alert-dialog-description">
-                Are you sure you want to delete the genre
+                Are you sure you want to delete the Book
               </DialogContentText>
             </DialogContent>
             <DialogActions>
@@ -218,7 +338,7 @@ const Genre = () => {
                 variant="contained"
                 onClick={() => {
                   handleCloseDelete();
-                  deleteOneGenre(deleteId);
+                  deleteOneBook(deleteId);
                 }}
                 autoFocus
               >
@@ -226,11 +346,13 @@ const Genre = () => {
               </Button>
             </DialogActions>
           </Dialog>
+
+
           <DataGrid
-          getRowId={(row) => row._id}
-            rows={genre}
+            rows={book}
             columns={columns}
             components={{ Toolbar: GridToolbar }}
+            getRowId={getRowId}
           />
         </Box>
       </Box>
@@ -238,4 +360,4 @@ const Genre = () => {
   );
 };
 
-export default Genre;
+export default Book;

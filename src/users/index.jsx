@@ -1,132 +1,180 @@
 import { Box, useTheme, IconButton } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import { ColorModeContext, tokens } from "../../theme";
-import DeleteIcon from "@mui/icons-material/Delete";
+import { ColorModeContext, tokens } from "../theme";
 import EditIcon from "@mui/icons-material/Edit";
-import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 
-import Header from "../../components/Header";
+import Header from "../components/Header";
 import { toast } from "react-toastify";
 
 import { useContext, useEffect, useState } from "react";
 
 import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
-
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
-
-import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
+import Button from "@mui/material/Button";
 
-const About = () => {
-  const [deleteId, setDeleteId] = useState("");
-  const [openDelete, setOpenDelete] = useState(false);
+import axios from "axios";
+import cookie from "cookiejs";
 
-  const handleClickOpenDelete = (id) => {
-    setOpenDelete(true);
-    setDeleteId(id);
-  };
+import { useNavigate, useParams } from "react-router-dom";
+import { LockOpen, Visibility } from "@mui/icons-material";
 
-  const handleCloseDelete = () => {
-    setOpenDelete(false);
-  };
-
+const User = () => {
+  const getRowId = (row) => row._id;
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const colorMode = useContext(ColorModeContext);
 
   const navigate = useNavigate();
 
-  const [about, setAbout] = useState([]);
+  const [user, setUser] = useState([]);
+
 
   const [isLoading, setIsLoading] = useState(false);
+  const [open, setOpen] = useState(false);
 
-  const fetchAllAbout = async () => {
+  const [deleteId, setDeleteId] = useState("");
+  const [openDelete, setOpenDelete] = useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+
+
+  const handleCloseDelete = () => {
+    setOpenDelete(false);
+  };
+
+
+  const fetchAllUsers = async () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.get("/aboutus/all");
+      const response = await axios.get(`/user`);
 
-      setAbout(response.data.data.aboutUs);
+      setUser(response.data.data.user);
 
       setIsLoading(false);
     } catch (error) {
       setIsLoading(false);
+    }
+  };
+
+
+  const deleteAll = async () => {
+    setIsLoading(true);
+    const tokenString = cookie.get("admin");
+    try {
+      let headersList = {
+        Accept: "*/*",
+        Userization: `Bearer ${tokenString}`,
+        "Content-Type": "application/json",
+      };
+
+      let bodyContent = JSON.stringify({
+        deleteKey: process.env.REACT_APP_DELETE_KEY,
+      });
+
+      const reqOptions = {
+        url: "/user",
+        method: "DELETE",
+        headers: headersList,
+        data: bodyContent,
+      };
+
+      const response = await axios.request(reqOptions);
+      if (response?.data?.status === "SUCCESS") {
+        toast.success(response?.data?.message);
+      }
+      if (
+        response?.data?.status === "ERROR" ||
+        response?.data?.status === "FAIL"
+      ) {
+        toast.error(response?.data?.message);
+      }
+
+      fetchAllUsers();
+    } catch (error) {
+      if (
+        error.response?.data?.status === "FAIL" ||
+        error.response?.data?.status === "ERROR"
+      ) {
+        toast.error(error?.response?.data?.message);
+      }
+      fetchAllUsers();
+    }
+  };
+
+  const unBanClient = async (id) => {
+    setIsLoading(true);
+
+    try {
+      const response = await axios.patch(`/user/changestatus/${id}`, {
+        is_active: true
+      });
+
+      if (response?.data?.status === "SUCCESS") {
+        toast.success(response?.data?.message);
+      }
+      fetchAllUsers();
+    } catch (error) {
+      if (
+        error.response?.data?.status === "FAIL" ||
+        error.response?.data?.status === "ERROR"
+      ) {
+        toast.error(error?.response?.data?.message);
+      }
+      fetchAllUsers();
     }
   };
 
   useEffect(() => {
-    fetchAllAbout();
+    fetchAllUsers();
   }, []);
 
-  const deleteOneAbout = async (id) => {
-    setIsLoading(true);
 
-    try {
-      const response = await axios.delete(`/aboutus/${id}`);
-      if (response?.data?.status === "SUCCESS") {
-        toast.success(response?.data?.message);
-      }
-      fetchAllAbout();
-    } catch (error) {
-      if (
-        error.response?.data?.status === "FAIL" ||
-        error.response?.data?.status === "ERROR"
-      ) {
-        toast.error(error?.response?.data?.message);
-      }
-      fetchAllAbout();
-    }
-  };
-
-  const changeStatus = async (status, id) => {
-    setIsLoading(true);
-    const data = {
-      is_active: status,
-    };
-    try {
-      const response = await axios.patch(`/aboutus/updatestatus/${id}`, data);
-      if (response?.data?.status === "SUCCESS") {
-        toast.success(response?.data?.message);
-      }
-      fetchAllAbout();
-      setIsLoading(false);
-    } catch (error) {
-      if (
-        error.response?.data?.status === "FAIL" ||
-        error.response?.data?.status === "ERROR"
-      ) {
-        toast.error(error?.response?.data?.message);
-      }
-      fetchAllAbout();
-      setIsLoading(false);
-    }
+  const unBan = (id) => {
+    setOpenDelete(true);
+    setDeleteId(id);
   };
 
   const columns = [
     {
-      field: "content",
-      headerName: "Content",
+      field: "firstName",
+      headerName: "full name",
       headerAlign: "left",
       align: "left",
-      width: 300,
+      width: 100,
+      valueGetter: (params) => params.row.firstName + ' ' + params.row.lastName
     },
     {
-      field: "createdAt",
-      headerName: "createdAt",
-      renderCell: (params) => {
-        return <div>{params.row.createdAt.slice(0, 10)}</div>;
-      },
+      field: "email",
+      headerName: "email",
+      headerAlign: "left",
+      align: "left",
+      width: 100,
     },
     {
-      field: "Status",
+      field: "bio",
+      headerName: "bio",
+      headerAlign: "left",
+      align: "left",
+      width: 100,
+    },
+    {
+      field: "is_active",
       headerName: "status",
       renderCell: (params) => {
         return (
@@ -143,63 +191,29 @@ const About = () => {
     {
       field: "Update Status",
       headerName: "Access Level",
-      width: 200,
+      width: 140,
+
       renderCell: (params) => {
         return (
           <>
-            <IconButton
+             <Visibility
               onClick={() => {
-                navigate(`view/${params.row.id}`);
-              }}
-            >
-              <RemoveRedEyeIcon />
-            </IconButton>
-            <EditIcon
-              onClick={() => {
-                navigate(`edit/${params.row.id}`);
+                navigate(`view/${params.row._id}`);
               }}
               className="admin-icons"
             />
-            <DeleteIcon
+            
+            {!params.row.is_active &&
+            <LockOpen
               className="admin-icons"
               onClick={() => {
-                handleClickOpenDelete(params.row.id);
+                unBan(params.row._id);
               }}
-            />
+            />}
           </>
         );
       },
-    },
-    {
-      field: "accessLevel",
-      headerName: "Change Status",
-      width: 200,
-      renderCell: (params) => {
-        return (
-          <div>
-            {params.row.is_active ? (
-              <button
-                className="draft-button bbtn"
-                onClick={() => {
-                  changeStatus(false, params.row.id);
-                }}
-              >
-                Deactivate
-              </button>
-            ) : (
-              <button
-                className="publish-button bbtn"
-                onClick={() => {
-                  changeStatus(true, params.row.id);
-                }}
-              >
-                Activate
-              </button>
-            )}
-          </div>
-        );
-      },
-    },
+    }
   ];
 
   return (
@@ -220,15 +234,23 @@ const About = () => {
         </Box>
       </div>
       <Box m="20px">
+        {/* <Header title="user" /> */}
         <div className="title-split">
-          <Header title="About" />
-          <IconButton
-            onClick={() => {
-              navigate("add");
-            }}
-          >
-            <AddIcon />
-          </IconButton>
+          <Header title="User" />
+          <div>
+            <IconButton
+              onClick={() => {
+                navigate("add");
+              }}
+            >
+              <AddIcon />
+            </IconButton>
+
+            {/* <IconButton onClick={handleClickOpen}>
+              <DeleteIcon />
+            </IconButton> */}
+
+          </div>
         </div>
         <Box
           m="40px 0 0 0"
@@ -272,7 +294,7 @@ const About = () => {
             <DialogTitle id="alert-dialog-title">{"Notice"}</DialogTitle>
             <DialogContent>
               <DialogContentText id="alert-dialog-description">
-                Are you sure you want to delete the About us content
+                Are you sure you want to unban the User
               </DialogContentText>
             </DialogContent>
             <DialogActions>
@@ -288,18 +310,21 @@ const About = () => {
                 variant="contained"
                 onClick={() => {
                   handleCloseDelete();
-                  deleteOneAbout(deleteId);
+                  unBanClient(deleteId);
                 }}
                 autoFocus
               >
-                Delete
+                Activate
               </Button>
             </DialogActions>
           </Dialog>
+
+
           <DataGrid
-            rows={about}
+            rows={user}
             columns={columns}
             components={{ Toolbar: GridToolbar }}
+            getRowId={getRowId}
           />
         </Box>
       </Box>
@@ -307,4 +332,4 @@ const About = () => {
   );
 };
 
-export default About;
+export default User;

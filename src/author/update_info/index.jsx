@@ -9,22 +9,34 @@ import { AppContext } from "../../context/AppContext";
 import { useContext } from "react";
 import Avatar from '@mui/material/Avatar';
 
+import dayjs, { Dayjs } from 'dayjs';
+import { DemoContainer, DemoItem  } from '@mui/x-date-pickers/internals/demo';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 
 
-const EditCoach = () => {
+const EditAuthor = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { presetName, cloudName } = useContext(AppContext);
-
 
     const [isLoading, setIsLoading] = useState(false);
 
     const [imageSuccess, setImageSuccess] = useState("");
+    const { presetName, cloudName } = useContext(AppContext);
 
-    const [coachImage, setCoachImage] = useState("");
+    const [authorImage, setAuthorImage] = useState("");
 
-    const [coachName, setCoachName] = useState("");
-    const [coachId, setCoachId] = useState("");
+    const [author, setAuthor] = useState({
+        full_name:"",
+        birth_date:"",
+        website:"",
+        amazon_url:"",
+        about:"",
+        picture_url:""
+    });
+
+    const [authorId, setAuthorId] = useState("");
 
     const [userImage, setUserImage] = useState({
         image_secure_url: "",
@@ -34,17 +46,16 @@ const EditCoach = () => {
     const isNonMobile = useMediaQuery("(min-width:600px)");
 
     /**
-     * fetch game week
+     * fetch author
      */
 
-    const fetchCoach = async () => {
+    const fetchAuthor = async () => {
         setIsLoading(true);
-        const response = await axios.get(`/coach/${id}`);
+        const response = await axios.get(`/author/${id}`);
 
         if (response?.data?.status === "SUCCESS") {
-            setCoachName(response.data.data.coach.coach_name);
-            setCoachImage(response.data.data.coach.image_secure_url);
-            setCoachId(response.data.data.coach._id)
+            setAuthor(response.data.data.author);
+            setAuthorImage(response.data.data.author.picture_url)
         }
 
         setIsLoading(false);
@@ -52,22 +63,20 @@ const EditCoach = () => {
 
 
     useEffect(() => {
-        fetchCoach();
+        fetchAuthor();
     }, []);
 
 
     const handleSubmit = async () => {
         try {
-            setIsLoading(true);
+            
+            delete author.picture_url;
+
             const response = await axios.patch(
-                `/coach/${coachId}`,
-                {
-                    coach_name: coachName
-                }
-            );
+                `/author/${id}`,author );
 
             if (response?.data?.status === "SUCCESS") {
-                navigate("/coach");
+                navigate("/author");
                 toast.success(response?.data?.message);
             }
             if (
@@ -78,6 +87,7 @@ const EditCoach = () => {
             }
             setIsLoading(false);
         } catch (error) {
+            console.log(error)
             if (
                 error.response?.data?.status === "FAIL" ||
                 error.response?.data?.status === "ERROR"
@@ -111,6 +121,10 @@ const EditCoach = () => {
                     })
                         .then((response) => response.json())
                         .then((data) => {
+                            console.log({
+                                image_secure_url: data.secure_url,
+                                image_public_id: data.public_id,
+                            })
                             handleImageUpdate({
                                 image_secure_url: data.secure_url,
                                 image_public_id: data.public_id,
@@ -137,8 +151,9 @@ const EditCoach = () => {
     const handleImageUpdate = async (data) => {
         try {
             setIsLoading(true);
+            console.log(data)
             const response = await axios.patch(
-                `/coach/image/${coachId}`,
+                `/author/image/${id}`,
                 {
                     ...data
                 }
@@ -146,7 +161,7 @@ const EditCoach = () => {
 
             if (response?.data?.status === "SUCCESS") {
                 setImageSuccess("yes");
-                navigate("/coach");
+                navigate("/author");
                 toast.success(response?.data?.message);
             }
             if (
@@ -157,6 +172,7 @@ const EditCoach = () => {
             }
             setIsLoading(false);
         } catch (error) {
+            console.log(error)
             if (
                 error.response?.data?.status === "FAIL" ||
                 error.response?.data?.status === "ERROR"
@@ -170,7 +186,7 @@ const EditCoach = () => {
 
     return (
         <Box m="20px">
-            <Header title="EDIT" subtitle="Coach" />
+            <Header title="EDIT" subtitle="Author" />
 
             {
                 isLoading && <p className="form-loading">Loading...</p>
@@ -185,8 +201,8 @@ const EditCoach = () => {
                 }}
             >
                 <Avatar
-                    alt={coachName}
-                    src={coachImage}
+                    alt={author.full_name}
+                    src={authorImage}
                     sx={{ width: 76, height: 76 }}
                 />
                 <div>
@@ -199,22 +215,84 @@ const EditCoach = () => {
                         className="upload-img"
                     />
                 </div>
-
+                </Box>
+                <Box
+                    display="grid"
+                    gap="30px"
+                    gridTemplateColumns="repeat(4, minmax(0, 1fr))"
+                    sx={{
+                        "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
+                    }}
+                >
                 <TextField
                     fullWidth
-                    placeholder="eg. 2024 or 24-25"
                     variant="filled"
                     type="text"
-                    label="Coach Name"
-                    value={coachName}
-                    onChange={(e) => setCoachName(e.target.value )}
+                    label="Author Name"
+                    value={author.full_name}
+                    onChange={(e) => setAuthor({full_name: e.target.value})}
                     name="name"
                     id="outlined-read-only-input"
                     InputProps={{
                         readOnly: false,
                     }}
-                    sx={{ gridColumn: "span 4" }}
+                    sx={{ gridColumn: "span 1" }}
                 />
+
+                <TextField
+                    fullWidth
+                    variant="filled"
+                    type="text"
+                    label="website"
+                    value={author.website}
+                    onChange={(e) => setAuthor({website: e.target.value})}
+                    name="name"
+                    id="outlined-read-only-input"
+                    InputProps={{
+                        readOnly: false,
+                    }}
+                    sx={{ gridColumn: "span 1" }}
+                />
+
+                <TextField
+                    fullWidth
+                    variant="filled"
+                    type="text"
+                    label="amazon url"
+                    value={author.amazon_url}
+                    onChange={(e) => setAuthor({amazon_url: e.target.value})}
+                    name="name"
+                    id="outlined-read-only-input"
+                    InputProps={{
+                        readOnly: false,
+                    }}
+                    sx={{ gridColumn: "span 1" }}
+                />
+
+                <TextField
+                    fullWidth
+                    variant="filled"
+                    type="text"
+                    label="about"
+                    value={author.about}
+                    onChange={(e) => setAuthor({about: e.target.value})}
+                    name="name"
+                    id="outlined-read-only-input"
+                    InputProps={{
+                        readOnly: false,
+                    }}
+                    sx={{ gridColumn: "span 2" }}
+                />
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DemoContainer width={300} components={['DateTimePicker', 'DateTimePicker']}>
+
+                    <DemoItem label="Responsive variant">
+                    <DateTimePicker defaultValue={dayjs(new Date(author.birth_date))}
+                    onChange={(newValue) => setAuthor({birth_date: newValue})} />
+                    </DemoItem>
+                      
+                        </DemoContainer>
+                    </LocalizationProvider>
 
             </Box>
             <Box display="flex" justifyContent="end" mt="20px">
@@ -231,4 +309,4 @@ const EditCoach = () => {
     );
 };
 
-export default EditCoach;
+export default EditAuthor;

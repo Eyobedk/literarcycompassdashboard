@@ -15,20 +15,22 @@ import AdminEdit from "./pages/admin-edit/admin-edit";
 
 import Profile from "./pages/profile/profile";
 
-import Clients from "./pages/clients/clients";
+import Clients from "./users/index";
 
 import FirstAccount from "./pages/first-account/first-account";
 
-import FeedbackTitle from "./pages/genre/index";
+import Genre from "./pages/genre/index";
 
-import AddFeedbackTitle from "./pages/genre-edit/index";
-import EditFeedbackTitle from "./pages/genre-edit/index";
+import AddGenre from "./pages/genre-add/index";
+import EditGenre from "./pages/genre-edit/index";
 
-import ClientView from "./pages/client-view/client-view";
+import ClientView from "./users/view";
 import Author from "./author/";
 import EditAuthor from "./author/update_info";
-import ToMajor from "./author/to_major";
 import AddAuthor from "./author/create";
+import Book from "./book";
+import EditBook from "./book/update_info/index";
+import AddBook from "./book/create";
 
 function App() {
   return (
@@ -59,14 +61,17 @@ function App() {
 
           <Route path="author" element={<Author />} />
           <Route path="author/edit/:id" element={<EditAuthor />} />
-          <Route path="author/tomajor" element={<ToMajor />} />
           <Route path="author/add" element={<AddAuthor />} />
 
-          <Route path="genre" element={<FeedbackTitle />} />
-          <Route path="genre/add" element={<AddFeedbackTitle />} />
+          <Route path="book" element={<Book />} />
+          <Route path="book/edit/:id" element={<EditBook />} />
+          <Route path="book/add" element={<AddBook />} />
+
+          <Route path="genre" element={<Genre />} />
+          <Route path="genre/add" element={<AddGenre />} />
           <Route
             path="genre/edit/:id"
-            element={<EditFeedbackTitle />}
+            element={<EditGenre />}
           />
         </Route>
       </Routes>

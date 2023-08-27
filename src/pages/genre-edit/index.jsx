@@ -1,31 +1,31 @@
 import { Box, Button, TextField } from "@mui/material";
-import { Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../components/Header";
-import { useNavigate} from "react-router-dom";
+import { useNavigate, useParams} from "react-router-dom";
+
 import axios from "axios";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 
-const EditFeedbackTitle = () => {
+const EditGenre = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
+
   const [isLoading, setIsLoading] = useState(false);
   const [title, setTitle] = useState("");
-  //   console.log(isLoading);
 
   const isNonMobile = useMediaQuery("(min-width:600px)");
 
 
-  // console.log({ ...values, published: !isDraftMode, is_message: isMessage });
   const handleFormSubmit = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.post(`/feedbacktitle`, {
+      const response = await axios.patch(`/genre/${id}`, {
         title: title,
       });
       //   console.log(response.data.data);
-      navigate("/feedback-title");
+      navigate("/genre");
       toast.success(response?.data?.message);
 
       setIsLoading(false);
@@ -36,9 +36,29 @@ const EditFeedbackTitle = () => {
     }
   };
 
+      /**
+     * fetch genre
+     */
+
+      const fetchGere = async () => {
+        setIsLoading(true);
+        const response = await axios.get(`/genre/${id}`);
+
+        if (response?.data?.status === "SUCCESS") {
+            setTitle(response.data.data.genre.title);
+        }
+
+        setIsLoading(false);
+    };
+
+
+    useEffect(() => {
+        fetchGere();
+    }, []);
+
   return (
     <Box m="20px">
-      <Header title="CREATE" subtitle="Feedback Title" />
+      <Header title="EDIT" subtitle="Genre" />
       {isLoading && <p className="form-loading">Loading...</p>}
 
       <Box
@@ -54,6 +74,7 @@ const EditFeedbackTitle = () => {
           variant="filled"
           type="text"
           label="Title"
+          required={true}
           name="title"
           value={title}
           onChange={(e) => {
@@ -70,7 +91,7 @@ const EditFeedbackTitle = () => {
           disabled={isLoading}
           onClick={handleFormSubmit}
         >
-          CREATE
+          EDIT
         </Button>
       </Box>
     </Box>
@@ -84,4 +105,4 @@ const initialValues = {
   title: "",
 };
 
-export default EditFeedbackTitle;
+export default EditGenre;

@@ -27,13 +27,29 @@ axios.interceptors.request.use(
   },
   function (error) {
     if (error) {
-      if (error.response.data.message === "Please login." ||error.response.data.message === 'Unauthorized. Provide the API Key') {
+      if (error.response.data.message === "Please login." ||error.response.data.error.statusCode === 401) {
         cookie.remove("admin");
 
         window.location.href = "/login";
       }
     }
     // console.log(error?.response?.data?.message);
+    return Promise.reject(error);
+  }
+);
+
+axios.interceptors.response.use(
+  function (response) {
+    return response;
+  },
+  function (error) {
+    if (error) {
+      if (error.response.data.message === "Please login." ||error.response.data.error.statusCode === 401) {
+        cookie.remove("admin");
+
+        window.location.href = "/login";
+      }
+    }
     return Promise.reject(error);
   }
 );
