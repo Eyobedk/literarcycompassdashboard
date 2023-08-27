@@ -34,7 +34,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import cookiejs from "cookiejs";
-import { Book, Leaderboard, MilitaryTech, School, Sports } from "@mui/icons-material";
+import { Book, Flag, Leaderboard, MilitaryTech, School, Sports } from "@mui/icons-material";
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
@@ -60,20 +60,20 @@ const Sidebar = () => {
   const admin = JSON.parse(tokenString);
 
   const [names, setNames] = useState({
-    first_name: "",
-    last_name: "",
+    firstName: "",
+    lastName: "",
     role: "",
   });
 
   useEffect(() => {
     if (tokenString) {
       setNames({
-        first_name: admin.first_name,
-        last_name: admin.last_name,
+        firstName: admin.firstName,
+        lastName: admin.lastName,
         role: admin.role,
       });
     }
-  }, [admin.first_name, admin.last_name, tokenString, admin.role]);
+  }, [admin.firstName, admin.firstName, tokenString, admin.role]);
 
   const [open, setOpen] = useState(false);
 
@@ -165,7 +165,7 @@ const Sidebar = () => {
                   fontWeight="bold"
                   sx={{ m: "10px 0 0 0" }}
                 >
-                  {`${names.first_name} ${names.last_name.slice(0, 1)}.`}
+                  {`${names.firstName} ${names.lastName.slice(0, 1)}.`}
                 </Typography>
                 <Typography variant="h5" color={colors.greenAccent[500]}>
                   {names.role}
@@ -273,109 +273,14 @@ const Sidebar = () => {
               selected={selected}
               setSelected={setSelected}
             />
-            
             <Item
-              title="Season"
-              to="/season"
-              icon={<CalendarMonthIcon />}
+              title="Reports"
+              to="/reports"
+              icon={<Flag/>}
               selected={selected}
               setSelected={setSelected}
             />
-            <Item
-              title="Competitions"
-              to="/competition"
-              icon={<EmojiEventsIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-
-            <Item
-              title="Game Week"
-              to="/gameweek"
-              icon={<SportsEsportsIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-
-            <Item
-              title="Leaderboard"
-              to="/leaderboard"
-              icon={<Leaderboard />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Winners"
-              to="/winners"
-              icon={<MilitaryTech />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Typography
-              variant="h6"
-              color={colors.grey[300]}
-              sx={{ m: "15px 0 5px 20px" }}
-            >
-              Client
-            </Typography>
-            
-            <Item
-              title="Agent's List"
-              to="/agents"
-              icon={<HandshakeIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Feedback"
-              to="/feedback"
-              icon={<FeedbackIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Typography
-              variant="h6"
-              color={colors.grey[300]}
-              sx={{ m: "15px 0 5px 20px" }}
-            >
-              Data
-            </Typography>
-            <Item
-              title="Terms And Conditions"
-              to="/terms"
-              icon={<SubjectIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Privacy And Policy"
-              to="/privacy"
-              icon={<SecurityIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="About Us"
-              to="/about"
-              icon={<InfoIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-
-            <Item
-              title="AD"
-              to="/ad"
-              icon={<CampaignIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="FAQ Page"
-              to="/faq"
-              icon={<QuizIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
+           
             <Typography
               variant="h6"
               color={colors.grey[300]}

@@ -57,8 +57,8 @@ const Login = () => {
       if (response?.data?.status === "SUCCESS") {
         const adminObj = {
           email: response?.data?.data?.admin?.email,
-          first_name: response?.data?.data?.admin?.firstName,
-          last_name: response?.data?.data?.admin?.lastName,
+          firstName: response?.data?.data?.admin?.firstName,
+          lastName: response?.data?.data?.admin?.lastName,
           role: response?.data?.data?.admin?.role,
         };
 
