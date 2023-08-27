@@ -8,8 +8,8 @@ export const AppContext = createContext({
 export const AppProvider = ({ children }) => {
   // const deleteKey = "";
 
-  const presetName = "xliy3xzm";
-  const cloudName = "dyj66sruf";
+  const presetName = "e3jaubid";
+  const cloudName = "forfeta";
 
   const value = {
     presetName,

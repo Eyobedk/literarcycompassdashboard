@@ -1,98 +1,77 @@
 import { Box, useTheme, IconButton } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
-import { ColorModeContext, tokens } from "../../theme";
-
-import LockOpenIcon from "@mui/icons-material/LockOpen";
-import LockIcon from "@mui/icons-material/Lock";
-import DeleteIcon from "@mui/icons-material/Delete";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import { ColorModeContext, tokens } from "../theme";
 import EditIcon from "@mui/icons-material/Edit";
 
-import Header from "../../components/Header";
+import Header from "../components/Header";
 import { toast } from "react-toastify";
 
 import { useContext, useEffect, useState } from "react";
 
 import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
-import LockClockIcon from "@mui/icons-material/LockClock";
-
-import axios from "axios";
-import cookie from "cookiejs";
-
-import { useNavigate } from "react-router-dom";
-
-import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
+import Button from "@mui/material/Button";
 
-const Admin = () => {
-  const [open, setOpen] = useState(false);
+import axios from "axios";
+import cookie from "cookiejs";
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-  const handleClose = () => {
-    setOpen(false);
-  };
+import { useNavigate, useParams } from "react-router-dom";
+import { LockOpen, Visibility } from "@mui/icons-material";
 
-
+const User = () => {
+  const getRowId = (row) => row._id;
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const colorMode = useContext(ColorModeContext);
 
   const navigate = useNavigate();
 
-  const [listOfAdmin, setListOfAdmin] = useState([]);
-  // console.log(listOfAdmin);
+  const [user, setUser] = useState([]);
+
 
   const [isLoading, setIsLoading] = useState(false);
+  const [open, setOpen] = useState(false);
 
-  const EditRole = (firstName, lastName, role, id) => {
-    navigate("edit", {
-      state: { firstName, lastName, role: role, id: id },
-    });
+  const [deleteId, setDeleteId] = useState("");
+  const [openDelete, setOpenDelete] = useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
   };
 
-  const fetchAllAdmins = async () => {
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+
+
+  const handleCloseDelete = () => {
+    setOpenDelete(false);
+  };
+
+
+  const fetchAllUsers = async () => {
     setIsLoading(true);
 
     try {
-      console.log("wey")
-      const response = await axios.get("/admin");
-      console.log(response)
-      setListOfAdmin(response.data.data.admins);
+      const response = await axios.get(`/user`);
+
+      setUser(response.data.data.user);
+
       setIsLoading(false);
     } catch (error) {
-      console.log(error)
       setIsLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchAllAdmins();
-  }, []);
-
-  const activateAdminStatus = async (id, value) => {
-    setIsLoading(true);
-    const values = { is_active: value };
-
-    try {
-      console.log(values)
-      const response = await axios.patch(`/admin/changestatus/${id}`, values);
-      toast.success(response?.data?.message);
-
-      fetchAllAdmins();
-    } catch (error) {
-      toast.error(error?.response?.data?.message);
-
-      fetchAllAdmins();
-    }
-  };
 
   const deleteAll = async () => {
     setIsLoading(true);
@@ -100,7 +79,7 @@ const Admin = () => {
     try {
       let headersList = {
         Accept: "*/*",
-        Authorization: `Bearer ${tokenString}`,
+        Userization: `Bearer ${tokenString}`,
         "Content-Type": "application/json",
       };
 
@@ -109,7 +88,7 @@ const Admin = () => {
       });
 
       const reqOptions = {
-        url: "/admin",
+        url: "/user",
         method: "DELETE",
         headers: headersList,
         data: bodyContent,
@@ -126,7 +105,7 @@ const Admin = () => {
         toast.error(response?.data?.message);
       }
 
-      fetchAllAdmins();
+      fetchAllUsers();
     } catch (error) {
       if (
         error.response?.data?.status === "FAIL" ||
@@ -134,83 +113,107 @@ const Admin = () => {
       ) {
         toast.error(error?.response?.data?.message);
       }
-      fetchAllAdmins();
+      fetchAllUsers();
     }
   };
 
+  const unBanClient = async (id) => {
+    setIsLoading(true);
+
+    try {
+      const response = await axios.patch(`/user/changestatus/${id}`, {
+        is_active: true
+      });
+
+      if (response?.data?.status === "SUCCESS") {
+        toast.success(response?.data?.message);
+      }
+      fetchAllUsers();
+    } catch (error) {
+      if (
+        error.response?.data?.status === "FAIL" ||
+        error.response?.data?.status === "ERROR"
+      ) {
+        toast.error(error?.response?.data?.message);
+      }
+      fetchAllUsers();
+    }
+  };
+
+  useEffect(() => {
+    fetchAllUsers();
+  }, []);
+
+
+  const unBan = (id) => {
+    setOpenDelete(true);
+    setDeleteId(id);
+  };
 
   const columns = [
     {
       field: "firstName",
-      headerName: "first_name",
-      cellClassName: "name-column--cell",
-    },
-    {
-      field: "lastName",
-      headerName: "last_name",
+      headerName: "full name",
       headerAlign: "left",
       align: "left",
+      width: 100,
+      valueGetter: (params) => params.row.firstName + ' ' + params.row.lastName
     },
     {
       field: "email",
-      headerName: "Email",
-      width: 200,
+      headerName: "email",
+      headerAlign: "left",
+      align: "left",
+      width: 100,
     },
     {
-      field: "role",
-      headerName: "role",
+      field: "bio",
+      headerName: "bio",
+      headerAlign: "left",
+      align: "left",
+      width: 100,
     },
     {
-      field: "account_status",
+      field: "is_active",
       headerName: "status",
       renderCell: (params) => {
         return (
           <div
             className={
-              params.row.is_active === true
-                ? "green-status"
-                : "red-status"
+              params.row.is_active === true ? "green-status" : "red-status"
             }
           >
-            {params.row.is_active ? "Active": "Inactive"}
+            {params.row.is_active ? "Active" : "InActive"}
           </div>
         );
       },
     },
     {
-      field: "accessLevel",
+      field: "Update Status",
       headerName: "Access Level",
-      width: 200,
+      width: 140,
+
       renderCell: (params) => {
         return (
           <>
-            {params.row.is_active ? (
-              <LockIcon
-                className="admin-icons"
-                onClick={() => {
-                  activateAdminStatus(params.row._id, false);
-                }}
-              />
-            ) : (
-              <LockOpenIcon
-                className="admin-icons"
-                onClick={() => {
-                  activateAdminStatus(params.row._id, true);
-                }}
-              />
-            )}
-
-            <EditIcon
+             <Visibility
               onClick={() => {
-                EditRole(params.row.firstName,params.row.lastName, params.row.role, params.row._id);
+                navigate(`view/${params.row._id}`);
               }}
               className="admin-icons"
             />
             
+            {!params.row.is_active &&
+            <LockOpen
+              className="admin-icons"
+              onClick={() => {
+                unBan(params.row._id);
+              }}
+            />}
           </>
         );
       },
-    },
+    }
   ];
 
   return (
@@ -231,8 +234,9 @@ const Admin = () => {
         </Box>
       </div>
       <Box m="20px">
+        {/* <Header title="user" /> */}
         <div className="title-split">
-          <Header title="Admins" subtitle="" />
+          <Header title="User" />
           <div>
             <IconButton
               onClick={() => {
@@ -241,43 +245,11 @@ const Admin = () => {
             >
               <AddIcon />
             </IconButton>
-            <IconButton onClick={handleClickOpen}>
-              <DeleteIcon />
-            </IconButton>
 
-            <Dialog
-              open={open}
-              onClose={handleClose}
-              aria-labelledby="alert-dialog-title"
-              aria-describedby="alert-dialog-description"
-            >
-              <DialogTitle id="alert-dialog-title">{"Notice"}</DialogTitle>
-              <DialogContent>
-                <DialogContentText id="alert-dialog-description">
-                  Are you sure you want to delete all the content
-                </DialogContentText>
-              </DialogContent>
-              <DialogActions>
-                <Button
-                  onClick={() => {
-                    handleClose();
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  color="secondary"
-                  variant="contained"
-                  onClick={() => {
-                    handleClose();
-                    deleteAll();
-                  }}
-                  autoFocus
-                >
-                  Delete All
-                </Button>
-              </DialogActions>
-            </Dialog>
+            {/* <IconButton onClick={handleClickOpen}>
+              <DeleteIcon />
+            </IconButton> */}
+
           </div>
         </div>
         <Box
@@ -307,14 +279,57 @@ const Admin = () => {
             "& .MuiCheckbox-root": {
               color: `${colors.greenAccent[200]} !important`,
             },
+            "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
+              color: `${colors.grey[100]} !important`,
+            },
           }}
         >
           {isLoading && <p className="form-loading">Loading...</p>}
-          <DataGrid  getRowId={(row) => row._id} rows={listOfAdmin} columns={columns} />
+          <Dialog
+            open={openDelete}
+            onClose={handleCloseDelete}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+          >
+            <DialogTitle id="alert-dialog-title">{"Notice"}</DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-description">
+                Are you sure you want to unban the User
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button
+                onClick={() => {
+                  handleCloseDelete();
+                }}
+              >
+                cancel
+              </Button>
+              <Button
+                color="secondary"
+                variant="contained"
+                onClick={() => {
+                  handleCloseDelete();
+                  unBanClient(deleteId);
+                }}
+                autoFocus
+              >
+                Activate
+              </Button>
+            </DialogActions>
+          </Dialog>
+
+
+          <DataGrid
+            rows={user}
+            columns={columns}
+            components={{ Toolbar: GridToolbar }}
+            getRowId={getRowId}
+          />
         </Box>
       </Box>
     </>
   );
 };
 
-export default Admin;
+export default User;

@@ -1,98 +1,76 @@
 import { Box, useTheme, IconButton } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
-import { ColorModeContext, tokens } from "../../theme";
-
-import LockOpenIcon from "@mui/icons-material/LockOpen";
-import LockIcon from "@mui/icons-material/Lock";
-import DeleteIcon from "@mui/icons-material/Delete";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import { ColorModeContext, tokens } from "../theme";
 import EditIcon from "@mui/icons-material/Edit";
 
-import Header from "../../components/Header";
+import Header from "../components/Header";
 import { toast } from "react-toastify";
 
 import { useContext, useEffect, useState } from "react";
 
 import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
-import LockClockIcon from "@mui/icons-material/LockClock";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import Button from "@mui/material/Button";
 
 import axios from "axios";
 import cookie from "cookiejs";
 
 import { useNavigate } from "react-router-dom";
 
-import Button from "@mui/material/Button";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
-
-const Admin = () => {
-  const [open, setOpen] = useState(false);
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-
+const Book = () => {
+  const getRowId = (row) => row._id;
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const colorMode = useContext(ColorModeContext);
 
   const navigate = useNavigate();
 
-  const [listOfAdmin, setListOfAdmin] = useState([]);
-  // console.log(listOfAdmin);
+  const [book, setBook] = useState([]);
+
 
   const [isLoading, setIsLoading] = useState(false);
+  const [open, setOpen] = useState(false);
 
-  const EditRole = (firstName, lastName, role, id) => {
-    navigate("edit", {
-      state: { firstName, lastName, role: role, id: id },
-    });
+  const [deleteId, setDeleteId] = useState("");
+  const [openDelete, setOpenDelete] = useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
   };
 
-  const fetchAllAdmins = async () => {
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+
+
+  const handleCloseDelete = () => {
+    setOpenDelete(false);
+  };
+
+
+  const fetchAllBooks = async () => {
     setIsLoading(true);
 
     try {
-      console.log("wey")
-      const response = await axios.get("/admin");
-      console.log(response)
-      setListOfAdmin(response.data.data.admins);
+      const response = await axios.get("/book");
+
+      setBook(response.data.data.book);
+
       setIsLoading(false);
     } catch (error) {
-      console.log(error)
       setIsLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchAllAdmins();
-  }, []);
-
-  const activateAdminStatus = async (id, value) => {
-    setIsLoading(true);
-    const values = { is_active: value };
-
-    try {
-      console.log(values)
-      const response = await axios.patch(`/admin/changestatus/${id}`, values);
-      toast.success(response?.data?.message);
-
-      fetchAllAdmins();
-    } catch (error) {
-      toast.error(error?.response?.data?.message);
-
-      fetchAllAdmins();
-    }
-  };
 
   const deleteAll = async () => {
     setIsLoading(true);
@@ -100,7 +78,7 @@ const Admin = () => {
     try {
       let headersList = {
         Accept: "*/*",
-        Authorization: `Bearer ${tokenString}`,
+        Bookization: `Bearer ${tokenString}`,
         "Content-Type": "application/json",
       };
 
@@ -109,7 +87,7 @@ const Admin = () => {
       });
 
       const reqOptions = {
-        url: "/admin",
+        url: "/book",
         method: "DELETE",
         headers: headersList,
         data: bodyContent,
@@ -126,7 +104,7 @@ const Admin = () => {
         toast.error(response?.data?.message);
       }
 
-      fetchAllAdmins();
+      fetchAllBooks();
     } catch (error) {
       if (
         error.response?.data?.status === "FAIL" ||
@@ -134,83 +112,103 @@ const Admin = () => {
       ) {
         toast.error(error?.response?.data?.message);
       }
-      fetchAllAdmins();
+      fetchAllBooks();
     }
   };
 
+  const deleteOneBook = async (id) => {
+    setIsLoading(true);
+
+    try {
+      const response = await axios.delete(`/book/${id}`);
+      if (response?.data?.status === "SUCCESS") {
+        toast.success(response?.data?.message);
+      }
+      fetchAllBooks();
+    } catch (error) {
+      if (
+        error.response?.data?.status === "FAIL" ||
+        error.response?.data?.status === "ERROR"
+      ) {
+        toast.error(error?.response?.data?.message);
+      }
+      fetchAllBooks();
+    }
+  };
+
+  useEffect(() => {
+    fetchAllBooks();
+  }, []);
+
+
+  const handleClickOpenDelete = (id) => {
+    setOpenDelete(true);
+    setDeleteId(id);
+  };
 
   const columns = [
     {
-      field: "firstName",
-      headerName: "first_name",
-      cellClassName: "name-column--cell",
-    },
-    {
-      field: "lastName",
-      headerName: "last_name",
+      field: "title",
+      headerName: "title",
       headerAlign: "left",
       align: "left",
+      width: 100,
+      valueGetter: (params) => params.row.author[0].full_name + '...'
     },
     {
-      field: "email",
-      headerName: "Email",
-      width: 200,
+      field: "about",
+      headerName: "about",
+      headerAlign: "left",
+      align: "left",
+      width: 100,
     },
     {
-      field: "role",
-      headerName: "role",
+      field: "no_of_page",
+      headerName: "no of page",
+      headerAlign: "left",
+      align: "left",
+      width: 100,
     },
     {
-      field: "account_status",
-      headerName: "status",
-      renderCell: (params) => {
-        return (
-          <div
-            className={
-              params.row.is_active === true
-                ? "green-status"
-                : "red-status"
-            }
-          >
-            {params.row.is_active ? "Active": "Inactive"}
-          </div>
-        );
-      },
+      field: "language",
+      headerName: "language",
+      headerAlign: "left",
+      align: "left",
+      width: 100,
     },
     {
-      field: "accessLevel",
+      field: "genre",
+      headerName: "genre",
+      headerAlign: "left",
+      align: "left",
+      width: 100,
+      valueGetter: (params) => params.row.genre[0].title + '...'
+    },
+    {
+      field: "Update Status",
       headerName: "Access Level",
-      width: 200,
+      width: 140,
+
       renderCell: (params) => {
         return (
           <>
-            {params.row.is_active ? (
-              <LockIcon
-                className="admin-icons"
-                onClick={() => {
-                  activateAdminStatus(params.row._id, false);
-                }}
-              />
-            ) : (
-              <LockOpenIcon
-                className="admin-icons"
-                onClick={() => {
-                  activateAdminStatus(params.row._id, true);
-                }}
-              />
-            )}
-
             <EditIcon
               onClick={() => {
-                EditRole(params.row.firstName,params.row.lastName, params.row.role, params.row._id);
+                navigate(`edit/${params.row._id}`);
               }}
               className="admin-icons"
             />
-            
+
+            <DeleteIcon
+              className="admin-icons"
+              onClick={() => {
+                handleClickOpenDelete(params.row._id);
+              }}
+            />
           </>
         );
       },
-    },
+    }
   ];
 
   return (
@@ -231,8 +229,9 @@ const Admin = () => {
         </Box>
       </div>
       <Box m="20px">
+        {/* <Header title="book" /> */}
         <div className="title-split">
-          <Header title="Admins" subtitle="" />
+          <Header title="Book" />
           <div>
             <IconButton
               onClick={() => {
@@ -241,9 +240,10 @@ const Admin = () => {
             >
               <AddIcon />
             </IconButton>
-            <IconButton onClick={handleClickOpen}>
+
+            {/* <IconButton onClick={handleClickOpen}>
               <DeleteIcon />
-            </IconButton>
+            </IconButton> */}
 
             <Dialog
               open={open}
@@ -254,7 +254,7 @@ const Admin = () => {
               <DialogTitle id="alert-dialog-title">{"Notice"}</DialogTitle>
               <DialogContent>
                 <DialogContentText id="alert-dialog-description">
-                  Are you sure you want to delete all the content
+                  Are you sure you want to delete all books
                 </DialogContentText>
               </DialogContent>
               <DialogActions>
@@ -307,14 +307,57 @@ const Admin = () => {
             "& .MuiCheckbox-root": {
               color: `${colors.greenAccent[200]} !important`,
             },
+            "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
+              color: `${colors.grey[100]} !important`,
+            },
           }}
         >
           {isLoading && <p className="form-loading">Loading...</p>}
-          <DataGrid  getRowId={(row) => row._id} rows={listOfAdmin} columns={columns} />
+          <Dialog
+            open={openDelete}
+            onClose={handleCloseDelete}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+          >
+            <DialogTitle id="alert-dialog-title">{"Notice"}</DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-description">
+                Are you sure you want to delete the Book
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button
+                onClick={() => {
+                  handleCloseDelete();
+                }}
+              >
+                cancel
+              </Button>
+              <Button
+                color="secondary"
+                variant="contained"
+                onClick={() => {
+                  handleCloseDelete();
+                  deleteOneBook(deleteId);
+                }}
+                autoFocus
+              >
+                Delete
+              </Button>
+            </DialogActions>
+          </Dialog>
+
+
+          <DataGrid
+            rows={book}
+            columns={columns}
+            components={{ Toolbar: GridToolbar }}
+            getRowId={getRowId}
+          />
         </Box>
       </Box>
     </>
   );
 };
 
-export default Admin;
+export default Book;

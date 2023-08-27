@@ -24,7 +24,7 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import SportsEsportsIcon from "@mui/icons-material/SportsEsports";
 import HandshakeIcon from "@mui/icons-material/Handshake";
-import MobileFriendlyIcon from "@mui/icons-material/MobileFriendly";
+import CollectionsBookmarkIcon from '@mui/icons-material/CollectionsBookmark';
 import DownloadIcon from "@mui/icons-material/Download";
 
 import Button from "@mui/material/Button";
@@ -34,7 +34,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import cookiejs from "cookiejs";
-import { Leaderboard, MilitaryTech, Sports } from "@mui/icons-material";
+import { Book, Leaderboard, MilitaryTech, School, Sports } from "@mui/icons-material";
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
@@ -236,9 +236,9 @@ const Sidebar = () => {
               setSelected={setSelected}
             />
             <Item
-              title="App Version"
-              to="/appversion"
-              icon={<MobileFriendlyIcon />}
+              title="Client's List"
+              to="/clients"
+              icon={<PersonIcon />}
               selected={selected}
               setSelected={setSelected}
             />
@@ -247,22 +247,33 @@ const Sidebar = () => {
               color={colors.grey[300]}
               sx={{ m: "15px 0 5px 20px" }}
             >
-              Game
+              Books
             </Typography>
+            
             <Item
-              title="Fetch Roaster Players"
-              to="/fetchplayer"
-              icon={<DownloadIcon />}
+              title="Author"
+              to="/author"
+              icon={<School />}
               selected={selected}
               setSelected={setSelected}
             />
+            
             <Item
-              title="Roaster Players"
-              to="/player"
-              icon={<SupervisedUserCircleIcon />}
+              title="Genre"
+              to="/genre"
+              icon={<CollectionsBookmarkIcon/>}
               selected={selected}
               setSelected={setSelected}
             />
+            
+            <Item
+              title="Book"
+              to="/book"
+              icon={<Book/>}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            
             <Item
               title="Season"
               to="/season"
@@ -287,13 +298,6 @@ const Sidebar = () => {
             />
 
             <Item
-              title="Coach"
-              to="/coach"
-              icon={<Sports />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
               title="Leaderboard"
               to="/leaderboard"
               icon={<Leaderboard />}
@@ -314,13 +318,7 @@ const Sidebar = () => {
             >
               Client
             </Typography>
-            <Item
-              title="Client's List"
-              to="/clients"
-              icon={<PersonIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
+            
             <Item
               title="Agent's List"
               to="/agents"
@@ -360,14 +358,6 @@ const Sidebar = () => {
               title="About Us"
               to="/about"
               icon={<InfoIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-
-            <Item
-              title="Feedback Title"
-              to="/feedback-title"
-              icon={<TitleIcon />}
               selected={selected}
               setSelected={setSelected}
             />
