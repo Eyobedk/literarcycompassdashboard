@@ -31,6 +31,8 @@ import AddAuthor from "./author/create";
 import Book from "./book";
 import EditBook from "./book/update_info/index";
 import AddBook from "./book/create";
+import Report from "./reports";
+import ViewReport from "./reports/view";
 
 function App() {
   return (
@@ -65,6 +67,10 @@ function App() {
 
           <Route path="book" element={<Book />} />
           <Route path="book/edit/:id" element={<EditBook />} />
+          <Route path="book/add" element={<AddBook />} />
+          
+          <Route path="reports" element={<Report />} />
+          <Route path="reports/view/:id" element={<ViewReport />} />
           <Route path="book/add" element={<AddBook />} />
 
           <Route path="genre" element={<Genre />} />

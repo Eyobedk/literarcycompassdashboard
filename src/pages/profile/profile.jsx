@@ -21,34 +21,34 @@ const Profile = () => {
   const admin = JSON.parse(storedAdminData);
 
   const [names, setNames] = useState({
-    first_name: "",
-    last_name: "",
+    firstName: "",
+    lastName: "",
   });
 
   const [account, setAccount] = useState({
     email: "",
-    phone_number: "",
+    email: "",
   });
 
   //   console.log(names, account);
 
   useEffect(() => {
     if (tokenString) {
-      setNames({ first_name: admin.first_name, last_name: admin.last_name });
-      setAccount({ email: admin.email, phone_number: admin.phone_number });
+      setNames({ firstName: admin.firstName, lastName: admin.lastName });
+      setAccount({ email: admin.email, email: admin.email });
     }
   }, [
     tokenString,
     admin.email,
-    admin.first_name,
-    admin.last_name,
-    admin.phone_number,
+    admin.firstName,
+    admin.lastName,
+    admin.email,
   ]);
 
   const submitProfile = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.patch("/admins/profile", names);
+      const response = await axios.patch("/admin/profile", names);
 
       if (response?.data?.status === "SUCCESS") {
         toast.success(response?.data?.message);
@@ -56,8 +56,8 @@ const Profile = () => {
 
       const adminObj = {
         ...admin,
-        first_name: names.first_name,
-        last_name: names.last_name,
+        firstName: names.firstName,
+        lastName: names.lastName,
       };
 
       localStorage.setItem("admin", JSON.stringify(adminObj));
@@ -119,8 +119,8 @@ const Profile = () => {
               variant="filled"
               type="text"
               label="First Name"
-              name="first_name"
-              value={admin.first_name}
+              name="firstName"
+              value={admin.firstName}
               sx={{ gridColumn: "span 4" }}
             />
             <TextField
@@ -133,8 +133,8 @@ const Profile = () => {
               type="text"
               id="outlined-read-only-input"
               label="Last Name"
-              name="last_name"
-              value={admin.last_name}
+              name="lastName"
+              value={admin.lastName}
               sx={{ gridColumn: "span 4" }}
             />
             <TextField
@@ -151,124 +151,10 @@ const Profile = () => {
               name="email"
               sx={{ gridColumn: "span 4" }}
             />
-            <TextField
-              id="outlined-read-only-input"
-              InputProps={{
-                readOnly: true,
-              }}
-              fullWidth
-              className="profile-textfield"
-              variant="filled"
-              type="text"
-              label="Phone Number"
-              name="phone_number"
-              value={admin.phone_number}
-              sx={{ gridColumn: "span 4" }}
-            />
-            <Button
-              type="submit"
-              color="secondary"
-              variant="contained"
-              onClick={() => {
-                navigate("change_pin");
-              }}
-            >
-              Change Pin
-            </Button>
+            
           </Box>
         </div>
-        <div className="profile-div">
-          <div>
-            <Header subtitle="Change Name" />
-            <Box
-              display="grid"
-              gap="30px"
-              sx={{
-                "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
-              }}
-            >
-              <TextField
-                className="profile-textfield"
-                fullWidth
-                variant="filled"
-                type="text"
-                label="First Name"
-                name="first_name"
-                value={names.first_name}
-                onChange={(e) => {
-                  setNames({ ...names, first_name: e.target.value });
-                }}
-                sx={{ gridColumn: "span 4" }}
-              />
-              <TextField
-                fullWidth
-                className="profile-textfield"
-                variant="filled"
-                type="text"
-                label="Last Name"
-                name="last_name"
-                value={names.last_name}
-                onChange={(e) => {
-                  setNames({ ...names, last_name: e.target.value });
-                }}
-                sx={{ gridColumn: "span 4" }}
-              />
-              <Button
-                type="submit"
-                color="secondary"
-                variant="contained"
-                onClick={submitProfile}
-              >
-                Update
-              </Button>
-            </Box>
-          </div>
-          <div>
-            <Header subtitle="Account Detail's" />
-            <Box
-              display="grid"
-              gap="30px"
-              sx={{
-                "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
-              }}
-            >
-              <TextField
-                className="profile-textfield"
-                fullWidth
-                variant="filled"
-                type="text"
-                label="Email"
-                name="email"
-                value={account.email}
-                onChange={(e) => {
-                  setAccount({ ...account, email: e.target.value });
-                }}
-                sx={{ gridColumn: "span 4" }}
-              />
-              <TextField
-                fullWidth
-                className="profile-textfield"
-                variant="filled"
-                type="text"
-                label="Phone Number"
-                name="phone_number"
-                value={account.phone_number}
-                onChange={(e) => {
-                  setAccount({ ...account, phone_number: e.target.value });
-                }}
-                sx={{ gridColumn: "span 4" }}
-              />
-              <Button
-                type="submit"
-                color="secondary"
-                variant="contained"
-                onClick={submitPhoneAndEmail}
-              >
-                Update
-              </Button>
-            </Box>
-          </div>
-        </div>
+       
       </div>
     </Box>
   );

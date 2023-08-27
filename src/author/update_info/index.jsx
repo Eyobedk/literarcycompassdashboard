@@ -285,9 +285,9 @@ const EditAuthor = () => {
                 />
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DemoContainer width={300} components={['DateTimePicker', 'DateTimePicker']}>
-
-                    <DemoItem label="Responsive variant">
-                    <DateTimePicker defaultValue={dayjs(new Date(author.birth_date))}
+                    {console.log(author.birth_date)}
+                    <DemoItem label="birth date">
+                    <DateTimePicker defaultValue={dayjs((author.birth_date))}
                     onChange={(newValue) => setAuthor({birth_date: newValue})} />
                     </DemoItem>
                       
