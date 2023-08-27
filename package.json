@@ -42,6 +42,8 @@
     "yup": "^0.32.11"
   },
   "scripts": {
+    "preinstall": "npm i react-scripts",
+    "prestart": "npm i -g serve",
     "start": "serve -s build",
     "build": "react-scripts build",
     "test": "react-scripts test",
