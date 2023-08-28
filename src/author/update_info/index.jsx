@@ -29,7 +29,7 @@ const EditAuthor = () => {
 
     const [author, setAuthor] = useState({
         full_name:"",
-        birth_date:"",
+        birth_date:new Date(),
         website:"",
         amazon_url:"",
         about:"",

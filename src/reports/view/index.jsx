@@ -103,8 +103,8 @@ const ViewReport = () => {
               + response.data?.data?.report.reported_user.lastName);
 
             setbook(response.data?.data?.report.book_id.title);
-            setreason(response.data?.data?.report.reason);
-
+            setreason(response.data?.data?.report.review_id.review_message);
+              console.log(response.data?.data?.report.review_id.review_message)
             setreported_user_id(response.data?.data?.report.reported_user._id);
             setreporting_user_id(response.data?.data?.report.reporting_user._id);
         }

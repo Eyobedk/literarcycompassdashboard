@@ -50,7 +50,7 @@ const AddAuthor = () => {
       const response = await axios.post(`/author`, {
         full_name: authorName,
         birth_date: birthDate,
-        website: birthDate,
+        website: website,
         amazon_url: amazonUrl,
         about,
         ...authorImage,
